@@ -14,9 +14,7 @@ import {
 } from '@remix-run/react'
 import { createBrowserClient } from '@supabase/auth-helpers-remix'
 
-import { createSupabaseServerClient } from './utils/supabase.server'
-
-// import stylesheet from './tailwind.css'
+import { createSupabaseServerClient } from '~/api/supabase.server'
 
 export const links: LinksFunction = () => [...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : [])]
 

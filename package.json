@@ -35,6 +35,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "3.2.5",
+    "supabase": "^1.142.1",
     "typescript": "^5.1.6"
   },
   "engines": {
