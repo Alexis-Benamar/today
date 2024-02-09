@@ -9,6 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   json,
+  redirect,
   useLoaderData,
   useRevalidator,
 } from '@remix-run/react'
@@ -31,6 +32,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const {
     data: { session },
   } = await supabase.auth.getSession()
+
+  if (session && new URL(request.url).pathname === '/') {
+    throw redirect('/home')
+  }
 
   return json({ env, session }, { headers: response.headers })
 }
