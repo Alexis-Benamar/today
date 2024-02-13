@@ -1,43 +1,41 @@
 import { ActionFunctionArgs } from '@remix-run/node'
-import { Form, Link, json, redirect, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, json, redirect, useLoaderData, useSubmit, useOutletContext } from '@remix-run/react'
 import { ChangeEvent, FormEvent, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
-import { supabase } from '~/api/supabase.server'
-import { cookie } from '~/auth/cookie'
+
+import { createSupabaseServerClient } from '~/api/supabase.server'
+import { OutletContext } from '~/root'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const auth = await cookie.parse(request.headers.get('Cookie'))
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
 
-  if (!auth) {
-    throw redirect('/login', {
-      headers: {
-        'Set-Cookie': await cookie.serialize('', {
-          maxAge: 0,
-        }),
-      },
-    })
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    return redirect('/login')
   }
 
   const { data: todos, error } = await supabase.from('todos').select('*')
   if (error) {
-    return json({ ok: false, todos: null, error }, { status: 500 })
+    return json({ ok: false, todos: null, error }, { status: 500, headers: response.headers })
   }
 
-  return json({ ok: true, todos, error: null })
+  return json({ ok: true, todos, error: null }, { headers: response.headers })
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // TODO: move to auth file
-  const auth = await cookie.parse(request.headers.get('Cookie'))
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
 
-  if (!auth) {
-    throw redirect('/login', {
-      headers: {
-        'Set-Cookie': await cookie.serialize('', {
-          maxAge: 0,
-        }),
-      },
-    })
+  // TODO: move to auth file
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) {
+    return redirect('/login')
   }
 
   const {
@@ -73,10 +71,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 export default function Home() {
+  const { supabaseClient } = useOutletContext<OutletContext>()
   const { todos } = useLoaderData<typeof loader>()
+  const inputRef = useRef<HTMLInputElement>(null)
   const submit = useSubmit()
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const handleLogout = async () => {
+    await supabaseClient.auth.signOut()
+  }
 
   const handleOnChange = (id: string, event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault()
@@ -95,6 +97,7 @@ export default function Home() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     const formData = new FormData(event.currentTarget)
     formData.append('intent', 'create')
 
@@ -110,7 +113,9 @@ export default function Home() {
 
   return (
     <main>
-      <Link to='/logout'>logout</Link>
+      <button type='button' onClick={handleLogout}>
+        logout
+      </button>
       <div role='list'>
         {todos?.map(todo => (
           <div key={todo.id}>

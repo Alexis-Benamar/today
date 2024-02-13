@@ -1,35 +1,42 @@
 import { json } from 'react-router'
-import { ActionFunctionArgs, redirect } from '@remix-run/node'
-import { Form } from '@remix-run/react'
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { Form, useActionData } from '@remix-run/react'
 
-import { supabase } from '~/api/supabase.server'
-import { cookie } from '~/auth/cookie'
+import { createSupabaseServerClient } from '~/api/supabase.server'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
+
   const form = await request.formData()
   const email = String(form.get('email'))
   const password = String(form.get('password'))
-
-  await supabase.auth.signOut()
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (!data || error) {
     return json({ ok: false, error }, { status: 400 })
   }
 
-  const headers = {
-    headers: {
-      'Set-Cookie': await cookie.serialize(data.session.access_token, {
-        expires: new Date(data.session.expires_at!),
-        maxAge: data.session.expires_in,
-      }),
-    },
+  return redirect('/home', { headers: response.headers })
+}
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (session) {
+    return redirect('/home')
   }
-  return redirect('/home', headers)
+
+  return null
 }
 
 export default function Login() {
-  // const actionData = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
 
   return (
     <div>
@@ -44,7 +51,7 @@ export default function Login() {
           <input name='password' type='password' required />
         </div>
         <button type='submit'>login</button>
-        {/* {!actionData?.ok && actionData?.error && `${actionData?.error.message}`} */}
+        {!actionData?.ok && actionData?.error && `${actionData?.error.message}`}
       </Form>
     </div>
   )

@@ -1,19 +1,25 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { Link, redirect } from '@remix-run/react'
-import { cookie } from '~/auth/cookie'
+import { Link, json, redirect } from '@remix-run/react'
+
+import { createSupabaseServerClient } from '~/api/supabase.server'
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Today' }, { name: 'description', content: 'List of things you have to do, today 😊' }]
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const auth = await cookie.parse(request.headers.get('Cookie'))
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
 
-  if (auth && new URL(request.url).pathname === '/') {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (session?.access_token && new URL(request.url).pathname === '/') {
     throw redirect('/home')
   }
 
-  return null
+  return json({}, { headers: response.headers })
 }
 
 export default function Index() {
