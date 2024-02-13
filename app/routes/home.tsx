@@ -1,6 +1,6 @@
 import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, json, useLoaderData, useSubmit, useOutletContext } from '@remix-run/react'
-import { ChangeEvent, FormEvent, useRef } from 'react'
+import { ChangeEvent, FormEvent, MouseEvent, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
 
 import { getSupabaseClient } from '~/api/supabase.server'
@@ -43,7 +43,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       user_id: userId,
     })
     if (createError) {
-      return json({ ok: false, createdTodo: null, error: createError }, { status: 400 })
+      return json({ ok: false, createdTodo: null, error: createError }, { status: 500 })
     }
 
     return json({
@@ -51,6 +51,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       createdTodo,
       error: null,
     })
+  }
+
+  if (intent === 'check') {
+    const id = String(formData.get('id'))
+    // Dirty trick to pass boolean as formdata
+    const done = !!Number(formData.get('done'))
+
+    const { error: checkError } = await supabase.from('todos').update({ done: !done }).match({ id, user_id: userId })
+    if (checkError) {
+      return json({ ok: false, error: checkError }, { status: 500 })
+    }
+
+    return json({ ok: true })
+  }
+
+  if (intent === 'delete') {
+    const id = String(formData.get('id'))
+
+    const { error: deleteError } = await supabase.from('todos').delete().match({ id, user_id: userId })
+    if (deleteError) {
+      return json({ ok: false, error: deleteError }, { status: 500 })
+    }
+
+    return json({ ok: true })
   }
 
   return null
@@ -66,19 +90,16 @@ export default function Home() {
     await supabaseClient.auth.signOut()
   }
 
-  const handleOnChange = (id: string, event: ChangeEvent<HTMLInputElement>) => {
+  const handleDelete = (id: string, event: MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
 
-    submit(
-      {
-        id,
-        intent: 'check',
-      },
-      {
-        method: 'post',
-        navigate: false,
-      },
-    )
+    submit({ id, intent: 'delete' }, { method: 'delete', navigate: false })
+  }
+
+  const handleOnChange = (id: string, done: boolean, event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault()
+
+    submit({ id, done: Number(done), intent: 'check' }, { method: 'patch', navigate: false })
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -99,6 +120,7 @@ export default function Home() {
 
   return (
     <main>
+      {/* TODO: move to layout */}
       <button type='button' onClick={handleLogout}>
         logout
       </button>
@@ -109,9 +131,10 @@ export default function Home() {
               type='checkbox'
               checked={todo.done}
               name={`todo-${todo.id}`}
-              onChange={e => handleOnChange(todo.id, e)}
+              onChange={e => handleOnChange(todo.id, todo.done, e)}
             />
             <label htmlFor={`todo-${todo.id}`}>{todo.text}</label>
+            <button onClick={e => handleDelete(todo.id, e)}>🗑️</button>
           </div>
         ))}
       </div>
