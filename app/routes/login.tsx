@@ -2,11 +2,10 @@ import { json } from 'react-router'
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 
-import { createSupabaseServerClient } from '~/api/supabase.server'
+import { getSupabaseClient } from '~/api/supabase.server'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response()
-  const supabase = createSupabaseServerClient({ request, response })
+  const { supabase, response } = getSupabaseClient(request)
 
   const form = await request.formData()
   const email = String(form.get('email'))
@@ -21,8 +20,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response()
-  const supabase = createSupabaseServerClient({ request, response })
+  const { supabase } = getSupabaseClient(request)
 
   const {
     data: { session },

@@ -6,3 +6,10 @@ export const createSupabaseServerClient = ({ request, response }: { request: Req
     response,
   })
 }
+
+export const getSupabaseClient = (request: Request) => {
+  const response = new Response()
+  const supabase = createSupabaseServerClient({ request, response })
+
+  return { supabase, response }
+}

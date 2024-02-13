@@ -1,24 +1,24 @@
 import { ActionFunctionArgs } from '@remix-run/node'
-import { Form, json, redirect, useLoaderData, useSubmit, useOutletContext } from '@remix-run/react'
+import { Form, json, useLoaderData, useSubmit, useOutletContext } from '@remix-run/react'
 import { ChangeEvent, FormEvent, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
 
-import { createSupabaseServerClient } from '~/api/supabase.server'
+import { getSupabaseClient } from '~/api/supabase.server'
 import { OutletContext } from '~/root'
+import { requireAuth } from '~/utils/auth'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response()
-  const supabase = createSupabaseServerClient({ request, response })
+  const { supabase, response } = getSupabaseClient(request)
+  const session = await requireAuth(supabase)
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const userId = session.user.id
 
-  if (!session) {
-    return redirect('/login')
-  }
+  const { data: todos, error } = await supabase
+    .from('todos')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
 
-  const { data: todos, error } = await supabase.from('todos').select('*')
   if (error) {
     return json({ ok: false, todos: null, error }, { status: 500, headers: response.headers })
   }
@@ -27,24 +27,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response()
-  const supabase = createSupabaseServerClient({ request, response })
+  const { supabase } = getSupabaseClient(request)
+  const session = await requireAuth(supabase)
 
-  // TODO: move to auth file
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session) {
-    return redirect('/login')
-  }
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (userError) {
-    return json({ ok: false, createdTodo: null, error: userError }, { status: 400 })
-  }
+  const userId = session.user.id
 
   const formData = await request.formData()
   const intent = String(formData.get('intent'))
@@ -54,7 +40,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     const { data: createdTodo, error: createError } = await supabase.from('todos').insert({
       text,
-      user_id: user?.id,
+      user_id: userId,
     })
     if (createError) {
       return json({ ok: false, createdTodo: null, error: createError }, { status: 400 })

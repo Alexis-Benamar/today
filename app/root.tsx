@@ -14,7 +14,7 @@ import {
 } from '@remix-run/react'
 import { Session, SupabaseClient, createBrowserClient } from '@supabase/auth-helpers-remix'
 
-import { createSupabaseServerClient } from './api/supabase.server'
+import { getSupabaseClient } from './api/supabase.server'
 
 export type OutletContext = {
   session: Session
@@ -28,8 +28,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     SUPABASE_URL: process.env.SUPABASE_URL!,
     SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY!,
   }
-  const response = new Response()
-  const supabase = createSupabaseServerClient({ request, response })
+
+  const { supabase, response } = getSupabaseClient(request)
 
   const {
     data: { session },
