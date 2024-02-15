@@ -14,14 +14,19 @@ import {
 } from '@remix-run/react'
 import { Session, SupabaseClient, createBrowserClient } from '@supabase/auth-helpers-remix'
 
-import { getSupabaseClient } from './api/supabase.server'
+import { getSupabaseClient } from '~/api/supabase.server'
+
+import styles from '../tailwind.css'
 
 export type OutletContext = {
   session: Session
   supabaseClient: SupabaseClient
 }
 
-export const links: LinksFunction = () => [...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : [])]
+export const links: LinksFunction = () => [
+  ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
+  { rel: 'stylesheet', href: styles },
+]
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const env = {
@@ -69,8 +74,22 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <h1>TODAY</h1>
-        <Outlet context={{ session: loaderSession, supabaseClient }} />
+        <main className='max-w-2xl mx-auto px-4'>
+          <div className='flex items-center justify-between'>
+            <h1 className='font-bold text-4xl mt-4 my-6 pointer-events-none'>TODAY ☀️</h1>
+            {loaderSession ? (
+              <button
+                onClick={async () => {
+                  await supabaseClient.auth.signOut()
+                }}
+                className='p-4'
+              >
+                Sign out
+              </button>
+            ) : null}
+          </div>
+          <Outlet context={{ session: loaderSession, supabaseClient }} />
+        </main>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

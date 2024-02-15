@@ -1,11 +1,11 @@
 import { ActionFunctionArgs } from '@remix-run/node'
-import { Form, json, useLoaderData, useSubmit, useOutletContext } from '@remix-run/react'
+import { Form, json, useLoaderData, useSubmit } from '@remix-run/react'
 import { ChangeEvent, FormEvent, MouseEvent, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
 
 import { getSupabaseClient } from '~/api/supabase.server'
-import { OutletContext } from '~/root'
 import { requireAuth } from '~/utils/auth'
+import { getRandomPlaceholder } from '~/utils/form'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, response } = getSupabaseClient(request)
@@ -81,14 +81,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 export default function Home() {
-  const { supabaseClient } = useOutletContext<OutletContext>()
+  const placeholderRef = useRef(getRandomPlaceholder())
   const { todos } = useLoaderData<typeof loader>()
   const inputRef = useRef<HTMLInputElement>(null)
   const submit = useSubmit()
-
-  const handleLogout = async () => {
-    await supabaseClient.auth.signOut()
-  }
 
   const handleDelete = (id: string, event: MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
@@ -119,36 +115,46 @@ export default function Home() {
   }
 
   return (
-    <main>
-      {/* TODO: move to layout */}
-      <button type='button' onClick={handleLogout}>
-        logout
-      </button>
+    <>
       <div role='list'>
         {todos?.map(todo => (
-          <div key={todo.id}>
+          <div
+            key={todo.id}
+            className='flex w-full mb-1 last:mb-0 items-center outline outline-2 outline-transparent transition-all ease-in-out duration-150 hover:outline-blue-700'
+          >
             <input
               type='checkbox'
               checked={todo.done}
               name={`todo-${todo.id}`}
               onChange={e => handleOnChange(todo.id, todo.done, e)}
+              className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500 m-2 cursor-pointer shrink-0'
             />
-            <label htmlFor={`todo-${todo.id}`}>{todo.text}</label>
-            <button onClick={e => handleDelete(todo.id, e)}>🗑️</button>
+            <label htmlFor={`todo-${todo.id}`} className='text-lg mx-2'>
+              {todo.text}
+            </label>
+            <button onClick={e => handleDelete(todo.id, e)} className='ms-auto p-2'>
+              🗑️
+            </button>
           </div>
         ))}
       </div>
-      <Form method='post' onSubmit={handleSubmit}>
+      <Form method='post' onSubmit={handleSubmit} className='relative mt-6'>
         <input
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
-          placeholder='add todo...'
+          placeholder={placeholderRef.current}
           name='text'
           ref={inputRef}
           required
+          className='bg-gray-50 border border-gray-300 text-xl text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5'
         />
-        <button type='submit'>+</button>
+        <button
+          type='submit'
+          className='absolute top-0 end-0 p-2.5 font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 '
+        >
+          Add
+        </button>
       </Form>
-    </main>
+    </>
   )
 }
