@@ -1,11 +1,12 @@
 import { ActionFunctionArgs } from '@remix-run/node'
-import { Form, json, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, json, useFetchers, useLoaderData, useSubmit } from '@remix-run/react'
 import { ChangeEvent, FormEvent, MouseEvent, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
 
 import { getSupabaseClient } from '~/api/supabase.server'
 import { requireAuth } from '~/utils/auth'
 import { getRandomPlaceholder } from '~/utils/form'
+import { Todo } from '~/utils/types'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, response } = getSupabaseClient(request)
@@ -58,7 +59,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // Dirty trick to pass boolean as formdata
     const done = !!Number(formData.get('done'))
 
-    const { error: checkError } = await supabase.from('todos').update({ done: !done }).match({ id, user_id: userId })
+    const { error: checkError } = await supabase.from('todos').update({ done }).match({ id, user_id: userId })
     if (checkError) {
       return json({ ok: false, error: checkError }, { status: 500 })
     }
@@ -80,11 +81,45 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null
 }
 
+function usePendingTodos() {
+  return useFetchers()
+    .filter(fetcher => {
+      if (!fetcher.formData) return
+
+      return ['create', 'check'].includes(String(fetcher.formData.get('intent')) ?? '')
+    })
+    .map(fetcher => {
+      const id = String(fetcher.formData?.get('id'))
+      const text = String(fetcher.formData?.get('text'))
+      const done = !!Number(fetcher.formData?.get('done'))
+
+      return {
+        id,
+        text,
+        done,
+      }
+    })
+}
+
 export default function Home() {
   const placeholderRef = useRef(getRandomPlaceholder())
-  const { todos } = useLoaderData<typeof loader>()
   const inputRef = useRef<HTMLInputElement>(null)
   const submit = useSubmit()
+
+  const { todos } = useLoaderData<typeof loader>()
+  const pendingTodos = usePendingTodos()
+
+  if (todos) {
+    for (const todo of pendingTodos) {
+      const matchingTodoIndex = todos?.findIndex(t => t.id === todo.id)
+      if (matchingTodoIndex === -1) {
+        todos?.push(todo)
+      } else {
+        const currentTodo = todos?.[matchingTodoIndex]
+        todos[matchingTodoIndex] = { ...currentTodo, ...todo }
+      }
+    }
+  }
 
   const handleDelete = (id: string, event: MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
@@ -92,10 +127,10 @@ export default function Home() {
     submit({ id, intent: 'delete' }, { method: 'delete', navigate: false })
   }
 
-  const handleOnChange = (id: string, done: boolean, event: ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (todo: Todo, event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault()
 
-    submit({ id, done: Number(done), intent: 'check' }, { method: 'patch', navigate: false })
+    submit({ ...todo, done: Number(!todo.done), intent: 'check' }, { method: 'patch', navigate: false })
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -103,6 +138,7 @@ export default function Home() {
 
     const formData = new FormData(event.currentTarget)
     formData.append('intent', 'create')
+    formData.append('id', window.crypto.randomUUID())
 
     submit(formData, {
       method: 'post',
@@ -116,7 +152,8 @@ export default function Home() {
 
   return (
     <>
-      <div role='list'>
+      <div role='list' className=''>
+        {!todos?.length ? <p className='text-center my-20 w-full'>No todos 🙌</p> : null}
         {todos?.map(todo => (
           <div
             key={todo.id}
@@ -126,7 +163,7 @@ export default function Home() {
               type='checkbox'
               checked={todo.done}
               name={`todo-${todo.id}`}
-              onChange={e => handleOnChange(todo.id, todo.done, e)}
+              onChange={e => handleOnChange(todo, e)}
               className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500 m-2 cursor-pointer shrink-0'
             />
             <label htmlFor={`todo-${todo.id}`} className='text-lg mx-2'>
@@ -138,7 +175,7 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <Form method='post' onSubmit={handleSubmit} className='relative mt-6'>
+      <Form method='post' onSubmit={handleSubmit} className='relative mt-6 mb-8'>
         <input
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
