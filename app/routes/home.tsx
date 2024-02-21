@@ -1,6 +1,6 @@
 import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, json, useFetchers, useLoaderData, useSubmit } from '@remix-run/react'
-import { ChangeEvent, FormEvent, MouseEvent, useRef } from 'react'
+import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
 
 import { getSupabaseClient } from '~/api/supabase.server'
@@ -134,6 +134,12 @@ export default function Home() {
     submit({ ...todo, done: Number(!todo.done), intent: 'check' }, { method: 'patch', navigate: false })
   }
 
+  const scrollToBottom = () => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -147,11 +153,15 @@ export default function Home() {
       unstable_flushSync: true,
     })
 
-    if (inputRef.current && listRef.current) {
+    if (inputRef.current) {
       inputRef.current.value = ''
-      listRef.current.scrollTop = listRef.current.scrollHeight
+      scrollToBottom()
     }
   }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [])
 
   return (
     <>
