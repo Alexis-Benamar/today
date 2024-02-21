@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@netlify/remix-runtime'
 import { Link, json, redirect } from '@remix-run/react'
 
 import { getSupabaseClient } from '~/api/supabase.server'

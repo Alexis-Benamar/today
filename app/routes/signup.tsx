@@ -1,5 +1,5 @@
 import { json } from 'react-router'
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@netlify/remix-runtime'
 import { Form, Link, useActionData } from '@remix-run/react'
 
 import { getSupabaseClient } from '~/api/supabase.server'

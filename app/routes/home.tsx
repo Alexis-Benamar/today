@@ -1,4 +1,4 @@
-import { ActionFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs } from '@netlify/remix-runtime'
 import { Form, json, useFetchers, useLoaderData, useSubmit } from '@remix-run/react'
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'

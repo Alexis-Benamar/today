@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { cssBundleHref } from '@remix-run/css-bundle'
-import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@netlify/remix-runtime'
 import {
   Links,
   LiveReload,
