@@ -89,15 +89,18 @@ function usePendingTodos() {
       return ['create', 'check', 'delete'].includes(String(fetcher.formData.get('intent')) ?? '')
     })
     .map(fetcher => {
+      const intent = String(fetcher.formData?.get('intent'))
       const id = String(fetcher.formData?.get('id'))
       const text = String(fetcher.formData?.get('text'))
       const done = !!Number(fetcher.formData?.get('done'))
-      const isDeleting = String(fetcher.formData?.get('intent')) === 'delete'
+      const isCreating = intent === 'create'
+      const isDeleting = intent === 'delete'
 
       return {
         id,
         text,
         done,
+        isCreating,
         isDeleting,
       }
     })
@@ -189,9 +192,11 @@ export default function Home() {
             <label htmlFor={`todo-${todo.id}`} className='text-lg mx-2'>
               {todo.text}
             </label>
-            <button onClick={e => handleDelete(todo, e)} className='ms-auto p-2'>
-              🗑️
-            </button>
+            {!todo.isCreating ? (
+              <button onClick={e => handleDelete(todo, e)} className='ms-auto p-2'>
+                🗑️
+              </button>
+            ) : null}
           </div>
         ))}
       </div>
