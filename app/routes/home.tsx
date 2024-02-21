@@ -104,6 +104,7 @@ function usePendingTodos() {
 export default function Home() {
   const placeholderRef = useRef(getRandomPlaceholder())
   const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   const submit = useSubmit()
 
   const { todos } = useLoaderData<typeof loader>()
@@ -143,16 +144,23 @@ export default function Home() {
     submit(formData, {
       method: 'post',
       navigate: false,
+      unstable_flushSync: true,
     })
 
-    if (inputRef.current) {
+    if (inputRef.current && listRef.current) {
       inputRef.current.value = ''
+      listRef.current.scrollTop = listRef.current.scrollHeight
     }
   }
 
   return (
     <>
-      <div role='list' className='overflow-y-auto' style={{ maxHeight: 'calc(100svh - 80px - 50px - 2rem)' }}>
+      <div
+        role='list'
+        ref={listRef}
+        className='overflow-y-auto'
+        style={{ maxHeight: 'calc(100svh - 80px - 50px - 2rem)' }}
+      >
         {!todos?.length ? <p className='text-center my-20 w-full'>No todos 🙌</p> : null}
         {todos?.map(todo => (
           <div
