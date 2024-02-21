@@ -177,7 +177,7 @@ export default function Home() {
         {todos?.map(todo => (
           <div
             key={todo.id}
-            className={`flex w-full mb-1 last:mb-0 items-center outline outline-2 outline-transparent transition-all ease-in-out duration-150 hover:outline-blue-700 ${todo.isDeleting ? 'opacity-20' : ''}`}
+            className={`flex w-full mb-1 last:mb-0 items-center outline outline-2 outline-transparent transition-all ease-in-out duration-150 hover:outline-blue-700 ${todo.isDeleting ? 'opacity-20 pointer-events-none' : ''}`}
           >
             <input
               type='checkbox'
