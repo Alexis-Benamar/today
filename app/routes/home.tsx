@@ -86,17 +86,19 @@ function usePendingTodos() {
     .filter(fetcher => {
       if (!fetcher.formData) return
 
-      return ['create', 'check'].includes(String(fetcher.formData.get('intent')) ?? '')
+      return ['create', 'check', 'delete'].includes(String(fetcher.formData.get('intent')) ?? '')
     })
     .map(fetcher => {
       const id = String(fetcher.formData?.get('id'))
       const text = String(fetcher.formData?.get('text'))
       const done = !!Number(fetcher.formData?.get('done'))
+      const isDeleting = String(fetcher.formData?.get('intent')) === 'delete'
 
       return {
         id,
         text,
         done,
+        isDeleting,
       }
     })
 }
@@ -122,22 +124,22 @@ export default function Home() {
     }
   }
 
-  const handleDelete = (id: string, event: MouseEvent<HTMLSpanElement>) => {
+  const scrollToBottom = () => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }
+
+  const handleDelete = (todo: Todo, event: MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
 
-    submit({ id, intent: 'delete' }, { method: 'delete', navigate: false })
+    submit({ ...todo, intent: 'delete' }, { method: 'delete', navigate: false })
   }
 
   const handleOnChange = (todo: Todo, event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault()
 
     submit({ ...todo, done: Number(!todo.done), intent: 'check' }, { method: 'patch', navigate: false })
-  }
-
-  const scrollToBottom = () => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight
-    }
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -175,7 +177,7 @@ export default function Home() {
         {todos?.map(todo => (
           <div
             key={todo.id}
-            className='flex w-full mb-1 last:mb-0 items-center outline outline-2 outline-transparent transition-all ease-in-out duration-150 hover:outline-blue-700'
+            className={`flex w-full mb-1 last:mb-0 items-center outline outline-2 outline-transparent transition-all ease-in-out duration-150 hover:outline-blue-700 ${todo.isDeleting ? 'opacity-20' : ''}`}
           >
             <input
               type='checkbox'
@@ -187,7 +189,7 @@ export default function Home() {
             <label htmlFor={`todo-${todo.id}`} className='text-lg mx-2'>
               {todo.text}
             </label>
-            <button onClick={e => handleDelete(todo.id, e)} className='ms-auto p-2'>
+            <button onClick={e => handleDelete(todo, e)} className='ms-auto p-2'>
               🗑️
             </button>
           </div>
