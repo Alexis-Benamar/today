@@ -168,7 +168,7 @@ export default function Home() {
       <div
         role='list'
         ref={listRef}
-        className='overflow-y-auto'
+        className='overflow-y-auto scroll-smooth'
         style={{ maxHeight: 'calc(100svh - 80px - 50px - 2rem)' }}
       >
         {!todos?.length ? <p className='text-center my-20 w-full'>No todos 🙌</p> : null}
