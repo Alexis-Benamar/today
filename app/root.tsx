@@ -86,9 +86,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <main className='max-w-2xl mx-auto px-4'>
+        <main className='max-w-2xl mx-auto px-4 max-h-screen'>
           <div className='flex items-center justify-between'>
-            <h1 className='font-bold text-4xl mt-4 my-6 pointer-events-none'>TODAY ☀️</h1>
+            <h1 className='font-bold text-4xl mt-5 my-5 pointer-events-none'>TODAY ☀️</h1>
             {loaderSession ? (
               <button
                 onClick={async () => {

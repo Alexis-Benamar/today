@@ -152,7 +152,7 @@ export default function Home() {
 
   return (
     <>
-      <div role='list' className=''>
+      <div role='list' className='overflow-y-auto' style={{ maxHeight: 'calc(100svh - 80px - 50px - 2rem)' }}>
         {!todos?.length ? <p className='text-center my-20 w-full'>No todos 🙌</p> : null}
         {todos?.map(todo => (
           <div
@@ -175,7 +175,7 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <Form method='post' onSubmit={handleSubmit} className='relative mt-6 mb-8'>
+      <Form method='post' onSubmit={handleSubmit} className='relative mt-4 mb-4'>
         <input
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
