@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { cssBundleHref } from '@remix-run/css-bundle'
-import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node'
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -21,6 +21,17 @@ import styles from '../tailwind.css'
 export type OutletContext = {
   session: Session
   supabaseClient: SupabaseClient
+}
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'today' },
+    { property: 'og:title', content: 'today' },
+    { property: 'og:description', content: 'helping you keeping track of things 𓆉' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: 'https://today.cacti.ovh' },
+    { name: 'description', content: 'helping you keeping track of things 𓆉' },
+  ]
 }
 
 export const links: LinksFunction = () => [

@@ -1,11 +1,7 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, json, redirect } from '@remix-run/react'
 
 import { getSupabaseClient } from '~/api/supabase.server'
-
-export const meta: MetaFunction = () => {
-  return [{ title: 'Today' }, { name: 'description', content: 'List of things you have to do, today 😊' }]
-}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, response } = getSupabaseClient(request)
