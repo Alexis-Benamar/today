@@ -1,9 +1,9 @@
-import { LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { LoaderFunctionArgs, redirect } from '@remix-run/cloudflare'
 
 import { getSupabaseClient } from '~/api/supabase.server'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { supabase } = getSupabaseClient(request)
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const { supabase } = getSupabaseClient(request, context)
 
   const { error } = await supabase.auth.signOut()
   if (error) {

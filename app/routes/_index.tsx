@@ -1,10 +1,10 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { Link, json, redirect } from '@remix-run/react'
 
 import { getSupabaseClient } from '~/api/supabase.server'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { supabase, response } = getSupabaseClient(request)
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const { supabase, response } = getSupabaseClient(request, context)
 
   const {
     data: { session },
@@ -34,11 +34,11 @@ export default function Index() {
         & hosted on{' '}
         <a
           className='font-medium text-blue-700 hover:underline'
-          href='https://www.netlify.com/'
+          href='https://pages.cloudflare.com//'
           target='_blank'
           rel='noreferrer'
         >
-          netlify
+          cloudflare pages
         </a>
       </p>
       <Link
