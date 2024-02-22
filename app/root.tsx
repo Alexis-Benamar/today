@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { cssBundleHref } from '@remix-run/css-bundle'
-import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
 import {
   Links,
   LiveReload,
@@ -39,13 +39,13 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: styles },
 ]
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const env = {
-    SUPABASE_URL: process.env.SUPABASE_URL!,
-    SUPABASE_PUBLIC_KEY: process.env.SUPABASE_PUBLIC_KEY!,
+    SUPABASE_URL: String(context.SUPABASE_URL)!,
+    SUPABASE_PUBLIC_KEY: String(context.SUPABASE_PUBLIC_KEY)!,
   }
 
-  const { supabase, response } = getSupabaseClient(request)
+  const { supabase, response } = getSupabaseClient(request, context)
 
   const {
     data: { session },

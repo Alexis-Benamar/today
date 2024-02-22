@@ -1,10 +1,15 @@
-import { config } from "@netlify/remix-adapter";
-
 /** @type {import('@remix-run/dev').AppConfig} */
 export default {
-  ...(process.env.NODE_ENV === "production" ? config : undefined),
-  // This works out of the box with the Netlify adapter, but you can
-  // add your own custom config here if you want to.
-  //
-  // See https://remix.run/file-conventions/remix-config
+  ignoredRouteFiles: ["**/*.css"],
+  server: "./server.ts",
+  serverBuildPath: "functions/[[path]].js",
+  serverConditions: ["workerd", "worker", "browser"],
+  serverDependenciesToBundle: "all",
+  serverMainFields: ["browser", "module", "main"],
+  serverMinify: true,
+  serverModuleFormat: "esm",
+  serverPlatform: "neutral",
+  // appDirectory: "app",
+  // assetsBuildDirectory: "public/build",
+  // publicPath: "/build/",
 };

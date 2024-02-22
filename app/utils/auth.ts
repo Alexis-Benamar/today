@@ -1,4 +1,4 @@
-import { redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/cloudflare'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export const redirectIfLoggedIn = async (supabaseClient: SupabaseClient) => {

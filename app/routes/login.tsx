@@ -1,12 +1,12 @@
 import { json } from 'react-router'
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/cloudflare'
 import { Form, Link, useActionData } from '@remix-run/react'
 
 import { getSupabaseClient } from '~/api/supabase.server'
 import { redirectIfLoggedIn } from '~/utils/auth'
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { supabase, response } = getSupabaseClient(request)
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { supabase, response } = getSupabaseClient(request, context)
 
   const form = await request.formData()
   const email = String(form.get('email'))
@@ -20,8 +20,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return redirect('/home', { headers: response.headers })
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { supabase } = getSupabaseClient(request)
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const { supabase } = getSupabaseClient(request, context)
   const shouldRedirect = await redirectIfLoggedIn(supabase)
 
   return shouldRedirect

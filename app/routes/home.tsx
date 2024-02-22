@@ -1,4 +1,4 @@
-import { ActionFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs } from '@remix-run/cloudflare'
 import { Form, json, useFetchers, useLoaderData, useSubmit } from '@remix-run/react'
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef } from 'react'
 import { LoaderFunctionArgs } from 'react-router'
@@ -8,8 +8,8 @@ import { requireAuth } from '~/utils/auth'
 import { getRandomPlaceholder } from '~/utils/form'
 import { Todo } from '~/utils/types'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { supabase, response } = getSupabaseClient(request)
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const { supabase, response } = getSupabaseClient(request, context)
   const session = await requireAuth(supabase)
 
   const userId = session.user.id
@@ -27,8 +27,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({ ok: true, todos, error: null }, { headers: response.headers })
 }
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { supabase } = getSupabaseClient(request)
+export const action = async ({ request: request, context }: ActionFunctionArgs) => {
+  const { supabase } = getSupabaseClient(request, context)
   const session = await requireAuth(supabase)
 
   const userId = session.user.id
