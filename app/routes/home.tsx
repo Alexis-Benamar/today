@@ -136,7 +136,7 @@ export default function Home() {
   const handleDelete = (todo: Todo, event: MouseEvent<HTMLSpanElement>) => {
     event.preventDefault()
 
-    submit({ ...todo, intent: 'delete' }, { method: 'delete', navigate: false })
+    submit({ ...todo, done: Number(todo.done), intent: 'delete' }, { method: 'delete', navigate: false })
   }
 
   const handleOnChange = (todo: Todo, event: ChangeEvent<HTMLInputElement>) => {
@@ -189,7 +189,7 @@ export default function Home() {
               onChange={e => handleOnChange(todo, e)}
               className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500 m-2 cursor-pointer shrink-0'
             />
-            <label htmlFor={`todo-${todo.id}`} className='text-lg mx-2'>
+            <label htmlFor={`todo-${todo.id}`} className={`text-lg mx-2 ${todo.done ? 'opacity-30 line-through' : ''}`}>
               {todo.text}
             </label>
             {!todo.isCreating ? (
