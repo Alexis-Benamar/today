@@ -208,13 +208,13 @@ export default function Home() {
           name='text'
           ref={inputRef}
           required
-          className='bg-gray-50 border border-gray-300 text-xl text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5'
+          className='bg-gray-50 border border-gray-300 text-xl text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-16'
         />
         <button
           type='submit'
-          className='absolute top-0 end-0 p-2.5 font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 '
+          className='absolute top-0 end-0 px-2.5 w-12 font-medium text-3xl leading-10 h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 '
         >
-          Add
+          +
         </button>
       </Form>
     </>
