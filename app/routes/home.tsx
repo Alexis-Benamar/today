@@ -202,6 +202,7 @@ export default function Home() {
       </div>
       <Form method='post' onSubmit={handleSubmit} className='relative mt-4 mb-4'>
         <input
+          autoComplete='off'
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           placeholder={placeholderRef.current}
