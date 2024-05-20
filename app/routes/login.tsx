@@ -71,10 +71,10 @@ export default function Login() {
           >
             Login
           </button>
-          <span className='mx-2'>or</span>
+          {/* <span className='mx-2'>or</span>
           <Link to='/signup' className='font-medium text-blue-700 hover:underline'>
             sign up
-          </Link>
+          </Link> */}
         </div>
       </Form>
     </div>

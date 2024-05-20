@@ -26,6 +26,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  return redirect('/home')
+
   const { supabase } = getSupabaseClient(request, context)
   const shouldRedirect = await redirectIfLoggedIn(supabase)
 
