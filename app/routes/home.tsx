@@ -1,3 +1,4 @@
+import CryptoJS from 'crypto-js'
 import { ActionFunctionArgs } from '@remix-run/cloudflare'
 import { Form, json, useFetchers, useLoaderData, useSubmit } from '@remix-run/react'
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useRef } from 'react'
@@ -24,6 +25,10 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     return json({ ok: false, todos: null, error }, { status: 500, headers: response.headers })
   }
 
+  for (const todo of todos) {
+    todo.text = CryptoJS.AES.decrypt(todo.text, String(context.DATA_KEY)).toString(CryptoJS.enc.Utf8)
+  }
+
   return json({ ok: true, todos, error: null }, { headers: response.headers })
 }
 
@@ -39,8 +44,10 @@ export const action = async ({ request: request, context }: ActionFunctionArgs) 
   if (intent === 'create') {
     const text = String(formData.get('text'))
 
+    const encryptedText = CryptoJS.AES.encrypt(text, String(context.DATA_KEY)).toString()
+
     const { data: createdTodo, error: createError } = await supabase.from('todos').insert({
-      text,
+      text: encryptedText,
       user_id: userId,
     })
     if (createError) {
