@@ -196,7 +196,7 @@ export default function Home() {
               onChange={e => handleOnChange(todo, e)}
               className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500 m-2 cursor-pointer shrink-0'
             />
-            <label htmlFor={`todo-${todo.id}`} className={`text-lg mx-2 ${todo.done ? 'opacity-30 line-through' : ''}`}>
+            <label htmlFor={`todo-${todo.id}`} className={`text-lg pl-2 ${todo.done ? 'opacity-30 line-through' : ''}`}>
               {todo.text}
             </label>
             {!todo.isCreating ? (
