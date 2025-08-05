@@ -86,8 +86,8 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <main className='max-w-2xl mx-auto px-4 max-h-screen'>
-          <div className='flex items-center justify-between'>
+        <main className='mx-auto px-4 max-h-screen'>
+          <div className='flex max-w-2xl mx-auto items-center justify-between'>
             <h1 className='font-bold text-4xl mt-5 my-5 pointer-events-none'>TODAY ☀️</h1>
             {loaderSession ? (
               <button

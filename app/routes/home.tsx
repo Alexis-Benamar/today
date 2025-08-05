@@ -187,7 +187,7 @@ export default function Home() {
         {todos?.map(todo => (
           <div
             key={todo.id}
-            className={`flex w-full mb-1 last:mb-0 items-center border-2 border-transparent transition-all ease-in-out duration-150 hover:border-blue-700 ${todo.isDeleting ? 'opacity-20 pointer-events-none' : ''}`}
+            className={`flex max-w-2xl w-full mb-1 mx-auto last:mb-0 items-center border-2 border-transparent transition-all ease-in-out duration-150 hover:border-blue-700 ${todo.isDeleting ? 'opacity-20 pointer-events-none' : ''}`}
           >
             <input
               type='checkbox'
@@ -207,7 +207,7 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <Form method='post' onSubmit={handleSubmit} className='relative mt-4 mb-4'>
+      <Form method='post' onSubmit={handleSubmit} className='relative max-w-2xl mx-auto my-4'>
         <input
           autoComplete='off'
           // eslint-disable-next-line jsx-a11y/no-autofocus
